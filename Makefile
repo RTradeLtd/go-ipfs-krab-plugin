@@ -1,3 +1,5 @@
+GO=env GO111MODULE=on go
+
 .PHONY: build-plugin
 build-plugin:
 	mkdir build
@@ -10,3 +12,8 @@ clean:
 .PHONY: vet
 vet:
 	go vet ./...
+
+.PHONY: deps
+deps:
+	$(GO) mod vendor
+	$(GO) mod tidy

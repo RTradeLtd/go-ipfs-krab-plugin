@@ -11,7 +11,7 @@ clean:
 
 .PHONY: vet
 vet:
-	go vet ./...
+	$(GO) vet ./...
 
 .PHONY: deps
 deps:

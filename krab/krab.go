@@ -56,8 +56,6 @@ func (kb *KBPlugin) Open(repoPath string, config map[string]interface{}, prompte
 		return nil, err
 	}
 	if exists, err := kbKeystore.Has("self"); err != nil {
-		return nil, err
-	} else if !exists {
 		decoded, err := ci.ConfigDecodeKey(selfPrivateKey)
 		if err != nil {
 			return nil, err
@@ -69,6 +67,8 @@ func (kb *KBPlugin) Open(repoPath string, config map[string]interface{}, prompte
 		if err := kbKeystore.Put("self", pk); err != nil {
 			return nil, err
 		}
+	} else if !exists {
+		return nil, errors.New("unexpected error")
 	}
 	return kbKeystore, nil
 }

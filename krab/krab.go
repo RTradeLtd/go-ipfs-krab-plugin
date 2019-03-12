@@ -72,3 +72,34 @@ func (kb *KBPlugin) Open(repoPath string, config map[string]interface{}, prompte
 	}
 	return kbKeystore, nil
 }
+
+func Open(repoPath string, config map[string]interface{}, prompter prompt.Prompter) (keystore.Keystore, error) {
+	encPass, ok := config["passphrase"].(string)
+	if !ok {
+		return nil, errors.New("passphrase not a valid type")
+	}
+	selfPrivateKey, ok := config["selfPrivateKey"].(string)
+	if !ok {
+		return nil, errors.New("selfPrivateKey not a valid type")
+	}
+	kbKeystore, err := krab.NewKrab(krab.Opts{Passphrase: encPass, DSPath: repoPath})
+	if err != nil {
+		return nil, err
+	}
+	if exists, err := kbKeystore.Has("self"); err != nil {
+		decoded, err := ci.ConfigDecodeKey(selfPrivateKey)
+		if err != nil {
+			return nil, err
+		}
+		pk, err := ci.UnmarshalPrivateKey(decoded)
+		if err != nil {
+			return nil, err
+		}
+		if err := kbKeystore.Put("self", pk); err != nil {
+			return nil, err
+		}
+	} else if !exists {
+		return nil, errors.New("unexpected error")
+	}
+	return kbKeystore, nil
+}
